@@ -27,5 +27,7 @@ def step(i):
  
     print(t2-t1)
 
-im_ani = animation.FuncAnimation(fig, step, range(500))
+im_ani = animation.FuncAnimation(fig, step, 10, repeat=False)
 plt.show()
+
+print(positions[0, 0])
