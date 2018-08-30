@@ -16,7 +16,7 @@ def step(i):
     positions[0, :] = 0
 
     t1 = time.time()
-    advance(0.0001, 100)
+    advance(0.001, 5)
     t2 = time.time()
 
     x_list = positions[:, 0]
@@ -27,7 +27,7 @@ def step(i):
  
     print(t2-t1)
 
-im_ani = animation.FuncAnimation(fig, step, 10, repeat=False)
+im_ani = animation.FuncAnimation(fig, step, 100, repeat=False)
 plt.show()
 
 print(positions[0, 0])

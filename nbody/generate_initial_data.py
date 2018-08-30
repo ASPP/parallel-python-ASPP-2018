@@ -1,6 +1,6 @@
 import numpy as np
 
-N = 30
+N = 50
 
 positions = np.random.rand(N, 3) * 80 - 40
 velocities = np.random.rand(N, 3) * 2 - 1

@@ -21,7 +21,7 @@ def combinations(l):
             result.append((l[x],y))
     return result
 
-N = 30
+N = 50
 
 from multiprocessing.sharedctypes import RawArray
 
@@ -37,7 +37,7 @@ positions[...] = np.loadtxt('initial_positions.txt')
 velocities[...] = np.loadtxt('initial_velocities.txt')
 masses[...] = np.loadtxt('masses.txt')
 
-masses[0] = 1
+masses[0] = 10
 
 def velocity_offsets(pair, dt):
     x1, x2 = positions[pair[0]], positions[pair[1]]
@@ -59,8 +59,8 @@ def update_velocities(dv):
 p = multiprocessing.Pool(8)
 
 def advance(dt, n, positions=positions, velocities=velocities):
+
     for step in range(n):
         dv = p.starmap(velocity_offsets, zip(itertools.combinations(range(N), 2), itertools.repeat(dt)))
         update_velocities(dv)
-
         positions += dt * velocities
