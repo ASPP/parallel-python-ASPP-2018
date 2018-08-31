@@ -16,6 +16,9 @@ import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 
+from numba import autojit, jit, prange
+
+@autojit(nopython=True)
 def velocity_offsets(x1, x2, v1, v2, m1, m2, dt):
     dx = x1 - x2
     mag = dt * np.linalg.norm(dx)
@@ -25,9 +28,10 @@ def velocity_offsets(x1, x2, v1, v2, m1, m2, dt):
     dv2 = dx * b1m
     return dv1, dv2
 
+@autojit(nopython=True, nogil=True, parallel=True)
 def advance(dt, n, positions, velocities, masses, pairs, offsets):
     for step in range(n):
-        for i in range(len(pairs)):
+        for i in prange(len(pairs)):
             p1 = pairs[i, 0]
             p2 = pairs[i, 1]
             x1, x2 = positions[p1], positions[p2]
