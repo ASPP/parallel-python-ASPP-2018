@@ -27,7 +27,7 @@ def offset_p(p, positions, velocities, masses, dt):
 
     for p2 in range(len(positions)):
 
-        if p1 >= p2:
+        if p1 == p2:
             continue
 
         x1 = positions[p1]
@@ -46,8 +46,10 @@ def offset_p(p, positions, velocities, masses, dt):
         b1m = m1 * mag
         b2m = m2 * mag
         
-        v1 += dx * b2m
-        v2 += dx * b1m
+        if p1 < p2:
+            v1 += dx * b2m
+        else:
+            v1 -= dx * b2m
 
 def advance(dt, n, positions, velocities, masses):
     for step in range(n):
@@ -89,7 +91,7 @@ def step(i):
     positions[0, :] = 0
 
     t1 = time.time()
-    advance(0.001, 5, positions, velocities, masses)
+    advance(0.001, 1, positions, velocities, masses)
     t2 = time.time()
 
     sc.set_offsets(positions[:, :2])
