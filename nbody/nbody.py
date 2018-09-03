@@ -9,14 +9,13 @@
 import argparse
 import itertools
 import multiprocessing
-import random
 import time
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 
-random.seed(0)
+np.random.seed(0)
 
 def offset_p(p, positions, velocities, masses, dt):
     """
