@@ -22,8 +22,6 @@ def offset_p(p, positions, velocities, masses, dt):
     Update the position of particle "p"
     """
     p1 = p
-    offset_x = 0
-    offset_y = 0
 
     for p2 in range(len(positions)):
 
