@@ -6,53 +6,75 @@
 # modified by Maciej Fijalkowski
 # 2to3
 
+import argparse
 import itertools
 import multiprocessing
-import os
-import sys
+import random
 import time
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 
-def velocity_offsets(x1, x2, v1, v2, m1, m2, dt):
-    dx = x1 - x2
-    mag = dt * np.linalg.norm(dx)
-    b1m = m1 * mag
-    b2m = m2 * mag
-    dv1 = dx * b2m
-    dv2 = dx * b1m
-    return dv1, dv2
+random.seed(0)
 
-def advance(dt, n, positions, velocities, masses, pairs, offsets):
+def offset_p(p, positions, velocities, masses, dt):
+    """
+    Update the position of particle "p"
+    """
+    p1 = p
+    offset_x = 0
+    offset_y = 0
+
+    for p2 in range(len(positions)):
+
+        if p1 >= p2:
+            continue
+
+        x1 = positions[p1]
+        x2 = positions[p2]
+
+        m1 = masses[p1]
+        m2 = masses[p2]
+
+        v1 = velocities[p1]
+        v2 = velocities[p2]
+
+        dx = x1 - x2
+
+        mag = dt * np.linalg.norm(dx)
+
+        b1m = m1 * mag
+        b2m = m2 * mag
+        
+        v1 += dx * b2m
+        v2 += dx * b1m
+
+def advance(dt, n, positions, velocities, masses):
     for step in range(n):
-        for i in range(len(pairs)):
-            p1 = pairs[i, 0]
-            p2 = pairs[i, 1]
-            x1, x2 = positions[p1], positions[p2]
-            v1, v2 = velocities[p1], velocities[p2]
-            m1, m2 = masses[p1], masses[p2]
-            dv1, dv2 = velocity_offsets(x1, x2, v1, v2, m1, m2, dt)
-            offsets[i, 0] = dv1
-            offsets[i, 1] = dv2
-        for i in range(len(pairs)):
-            p1 = pairs[i, 0]
-            p2 = pairs[i, 1]
-            velocities[p1] += offsets[i, 0]
-            velocities[p2] += offsets[i, 1]
+        for p in range(len(positions)):
+            offset_p(p, positions, velocities, masses, dt)
         positions += dt * velocities
 
-positions = np.loadtxt('initial_positions.txt')
-velocities = np.loadtxt('initial_velocities.txt')
-masses = np.loadtxt('masses.txt')
+parser = argparse.ArgumentParser(description='N-body simulation')
+parser.add_argument('N', default=5, type=int)
+parser.add_argument('nsteps', nargs='?', default=100, type=int)
+parser.add_argument('--animate', action='store_true')
 
-N = len(positions)
+args = parser.parse_args()
 
-pairs = np.array(list(itertools.combinations(range(N), 2)), dtype=np.int32)
-num_pairs = len(pairs)
+N = args.N
+nsteps = args.nsteps
+animate = args.animate
 
-offsets = np.zeros([num_pairs, 2, 3], dtype=np.float64)
+positions = np.random.rand(N, 3) * 80 - 40
+velocities = np.random.rand(N, 3) * 2 - 1
+masses = np.random.rand(N) * 0.05
+
+# initial conditions:
+positions[0, :] = 0
+masses[0] = 10
+
 
 ims = []
 
@@ -68,15 +90,26 @@ def step(i):
     positions[0, :] = 0
 
     t1 = time.time()
-    advance(0.001, 5, positions, velocities, masses, pairs, offsets)
+    advance(0.001, 5, positions, velocities, masses)
     t2 = time.time()
 
     sc.set_offsets(positions[:, :2])
 
-    print(t2-t1)
+    print("Time for step {}: {}s".format(i, t2-t1))
     return sc,
 
-im_ani = animation.FuncAnimation(fig, step, 100, repeat=False, blit=True, init_func=init_func)
-plt.show()
+if animate:
+    im_ani = animation.FuncAnimation(
+            fig,
+            step,
+            nsteps,
+            repeat=False,
+            blit=True,
+            interval=10,
+            init_func=init_func)
+    plt.show()
+else:
+    for i in range(nsteps):
+        step(i)
 
-print("Position of particle 5: {}".format(positions[5]))
+print("Position of particle 2: {}".format(positions[2]))
