@@ -29,7 +29,7 @@ def offset_p(p, positions, velocities, masses, dt):
 
     for p2 in range(len(positions)):
 
-        if p1 >= p2:
+        if p1 == p2:
             continue
 
         x1 = positions[p1]
@@ -47,14 +47,16 @@ def offset_p(p, positions, velocities, masses, dt):
 
         b1m = m1 * mag
         b2m = m2 * mag
-        
-        v1 += dx * b2m
-        v2 += dx * b1m
+
+        if p1 < p2:
+            v1 += dx * b2m
+        else:
+            v1 -= dx * b2m
 
 @autojit(nopython=True, nogil=True, parallel=True)
 def advance(dt, n, positions, velocities, masses):
     for step in range(n):
-        for p in range(len(positions)):
+        for p in prange(len(positions)):
             offset_p(p, positions, velocities, masses, dt)
         positions += dt * velocities
 
