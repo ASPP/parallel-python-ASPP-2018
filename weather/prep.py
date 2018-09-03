@@ -1,10 +1,6 @@
 import os
 import numpy as np
-import pandas as pd
 from glob import glob
-import tarfile
-import urllib.request
-import zipfile
 
 here = os.path.dirname(__file__)
 
