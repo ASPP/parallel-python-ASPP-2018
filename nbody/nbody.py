@@ -91,7 +91,7 @@ def step(i):
     positions[0, :] = 0
 
     t1 = time.time()
-    advance(0.001, 1, positions, velocities, masses)
+    advance(0.001, 5, positions, velocities, masses)
     t2 = time.time()
 
     sc.set_offsets(positions[:, :2])
