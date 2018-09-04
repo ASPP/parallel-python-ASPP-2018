@@ -130,7 +130,7 @@ In CPython, only **one** thread can execute Python code at once,
 due to the [Global Interpreter Lock](https://docs.python.org/3.7/glossary.html#term-global-interpreter-lock)
 (pictured below):
 
-![GIL](images/GIL_balrog.jpg)
+![GIL](images/GIL_balrog.png)
 
 The GIL ensures that when multiple threads access Python objects,
 they do so without interfering with each other.
