@@ -2,9 +2,7 @@ import os
 import numpy as np
 from glob import glob
 
-here = os.path.dirname(__file__)
-
-data_dir = here
+data_dir = here = os.path.dirname(__file__)
 
 def create_weather(growth=16):
     filenames = sorted(glob(os.path.join(data_dir, 'weather-small', '*.hdf5')))
