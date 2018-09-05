@@ -7,7 +7,7 @@ def generate_random_array(n):
     """
     Generate a random array of size 'n'
     """
-    a = np.random.rand(int(n))
+    a = np.random.RandomState().randint(0, 10, (int(n),))
     print("Done.")
 
 threads = []

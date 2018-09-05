@@ -126,5 +126,5 @@ pip-selfcheck.json
 # End of https://www.gitignore.io/api/python
 #
 *.txt
-weather/weather-big/
+data/weather-big/
 .DS_Store
