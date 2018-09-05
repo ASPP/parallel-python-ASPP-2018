@@ -18,7 +18,7 @@ from numba import autojit, prange
 
 np.random.seed(0)
 
-@autojit(nopython=True, nogil=True)
+@jit(nopython=True, nogil=True)
 def offset_p(p, positions, velocities, masses, dt):
     """
     Update the position of particle "p"
@@ -53,7 +53,7 @@ def offset_p(p, positions, velocities, masses, dt):
         else:
             v1 -= dx * b2m
 
-@autojit(nopython=True, nogil=True, parallel=True)
+@jit(nopython=True, nogil=True, parallel=True)
 def advance(dt, n, positions, velocities, masses):
     for step in range(n):
         for p in prange(len(positions)):
