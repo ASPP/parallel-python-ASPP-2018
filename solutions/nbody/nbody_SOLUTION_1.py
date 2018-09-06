@@ -43,7 +43,7 @@ def offset_p(p, positions, velocities, masses, dt):
         mag = dt * np.linalg.norm(dx)
 
         b2m = m2 * mag
-        
+
         if p1 < p2:
             offset += dx * b2m
         else:
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         Compute one frame of the animation.
         """
         t1 = time.time()
-        advance(0.001, 5, positions, velocities, masses)
+        advance(0.001, STEPS_PER_FRAME, positions, velocities, masses)
         t2 = time.time()
 
         sc.set_offsets(positions[:, :2])
