@@ -15,50 +15,31 @@ import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 
-# ensure repeatable results
-np.random.seed(0)
-
-# number of time steps per frame
-STEPS_PER_FRAME = 5
-
-def compute_offsets(positions, velocities, masses, dt):
+def step(num_steps, positions, velocities, masses, dt):
     """
-    Calculate particle interactions and compute offsets.
-    """
-    offsets = np.zeros_like(velocities)
-
-    for p1 in range(len(positions)):
-        for p2 in range(len(positions)):
-            x1 = positions[p1]
-            x2 = positions[p2]
-
-            m1 = masses[p1]
-            m2 = masses[p2]
-
-            v1 = velocities[p1]
-            v2 = velocities[p2]
-
-            dx = x1 - x2
-
-            mag = dt * np.linalg.norm(dx)
-            
-            b2m = m2 * mag
-            
-            if p1 < p2:
-                offsets[p1] += dx * b2m
-            else:
-                offsets[p1] -= dx * b2m
-
-    return offsets
-
-def advance(dt, n, positions, velocities, masses):
-    """
-    Advance the simulation by 'n' time steps.
+    Advance the simulation by 'num_steps' time steps.
     """
     positions[0, :] = 0
-    for step in range(n):
-        offsets = compute_offsets(positions, velocities, masses, dt)
-        velocities += offsets
+
+    for step in range(num_steps):
+
+        for i in range(N):
+            for j in range(N):
+
+                x1, x2 = positions[i], positions[j]
+                v1, v2 = velocities[i], velocities[j]
+                m1, m2 = masses[i], masses[j]
+
+                dx = x1 - x2
+
+                mag = dt * np.linalg.norm(dx)
+                F = m2 * mag * dx
+
+                if i < j:
+                    velocities[i] += F
+                else:
+                    velocities[i] -= F
+
         positions += dt * velocities
 
 if __name__ == "__main__":
@@ -70,6 +51,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    # ensure repeatable results
+    np.random.seed(0)
+
+    # number of time steps per frame
+    STEPS_PER_FRAME = 5
+
     N = args.N
     nsteps = args.nsteps
     animate = args.animate
@@ -78,9 +65,11 @@ if __name__ == "__main__":
     velocities = np.random.rand(N, 3) * 2 - 1
     masses = np.random.rand(N) * 0.05
 
+    dt = 0.001
+
     # initial conditions:
     positions[0, :] = 0
-    masses[0] = 10
+    masses[0] = 100
 
     ims = []
 
@@ -97,7 +86,7 @@ if __name__ == "__main__":
         Compute one frame of the animation.
         """
         t1 = time.time()
-        advance(0.001, STEPS_PER_FRAME, positions, velocities, masses)
+        step(STEPS_PER_FRAME, positions, velocities, masses, dt)
         t2 = time.time()
 
         sc.set_offsets(positions[:, :2])
