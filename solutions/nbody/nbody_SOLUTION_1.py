@@ -11,8 +11,6 @@ import itertools
 import multiprocessing
 import time
 
-import matplotlib.animation as animation
-import matplotlib.pyplot as plt
 import numpy as np
 
 # ensure repeatable results
@@ -83,6 +81,13 @@ if __name__ == "__main__":
     nsteps = args.nsteps
     animate = args.animate
 
+    if not animate:
+        import matplotlib
+        matplotlib.use('Agg')
+
+    import matplotlib.animation as animation
+    import matplotlib.pyplot as plt
+
     positions = np.random.rand(N, 3) * 80 - 40
     velocities = np.random.rand(N, 3) * 2 - 1
     masses = np.random.rand(N) * 0.05
@@ -114,7 +119,7 @@ if __name__ == "__main__":
         print("Time for step {}: {}s".format(i, t2-t1))
         return sc,
 
-    with multiprocessing.Pool(4) as pool:
+    with multiprocessing.Pool(8) as pool:
         if animate:
             im_ani = animation.FuncAnimation(
                     fig,

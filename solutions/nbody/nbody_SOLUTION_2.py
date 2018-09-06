@@ -11,8 +11,6 @@ import itertools
 import multiprocessing
 import time
 
-import matplotlib.animation as animation
-import matplotlib.pyplot as plt
 import numpy as np
 from numba import jit, prange
 
@@ -76,6 +74,13 @@ if __name__ == "__main__":
     N = args.N
     nsteps = args.nsteps
     animate = args.animate
+
+    if not animate:
+        import matplotlib
+        matplotlib.use('Agg')
+
+    import matplotlib.animation as animation
+    import matplotlib.pyplot as plt
 
     positions = np.random.rand(N, 3) * 80 - 40
     velocities = np.random.rand(N, 3) * 2 - 1
