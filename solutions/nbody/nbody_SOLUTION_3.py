@@ -11,8 +11,6 @@ import itertools
 import multiprocessing
 import time
 
-import matplotlib.animation as animation
-import matplotlib.pyplot as plt
 import numpy as np
 from numba import jit, prange
 

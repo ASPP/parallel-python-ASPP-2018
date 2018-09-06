@@ -119,7 +119,7 @@ if __name__ == "__main__":
         print("Time for step {}: {}s".format(i, t2-t1))
         return sc,
 
-    with multiprocessing.Pool(4) as pool:
+    with multiprocessing.Pool(8) as pool:
         if animate:
             im_ani = animation.FuncAnimation(
                     fig,
