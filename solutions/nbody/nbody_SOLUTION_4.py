@@ -58,12 +58,12 @@ def advance(dt, n, positions, velocities, masses):
     positions[0, :] = 0
 
     num_threads = 4
-    threads = []
 
     N = len(positions)
     pN = N // num_threads
     
     for step in range(n):
+        threads = []
         for i in range(num_threads):
             p1 = list(range(i*pN, i*pN+pN))
             t = Thread(
