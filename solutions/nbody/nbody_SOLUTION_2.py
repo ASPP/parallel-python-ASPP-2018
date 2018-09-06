@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     # initial conditions:
     positions[0, :] = 0
-    masses[0] = 10
+    masses[0] = 100
 
     ims = []
 

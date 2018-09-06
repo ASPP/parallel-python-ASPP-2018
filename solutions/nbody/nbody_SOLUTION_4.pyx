@@ -112,7 +112,7 @@ def __main__(args):
 
     # initial conditions:
     positions[0, :] = 0
-    masses[0] = 10
+    masses[0] = 100
 
     ims = []
 
