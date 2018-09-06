@@ -55,8 +55,8 @@ def advance(dt, n, positions, velocities, masses):
     """
     Advance the simulation by 'n' time steps.
     """
-    positions[0, :] = 0
     for step in range(n):
+        positions[0, :] = 0
         offsets = pool.starmap(
             offset_p,
             zip(
