@@ -11,8 +11,6 @@ import itertools
 import multiprocessing
 import time
 
-import matplotlib.animation as animation
-import matplotlib.pyplot as plt
 import numpy as np
 from numba import jit, prange
 
@@ -27,8 +25,6 @@ def compute_offsets(positions, velocities, masses, dt):
     """
     Calculate particle interactions and compute offsets.
     """
-    offsets = np.zeros_like(velocities)
-
     for p1 in range(len(positions)):
         for p2 in range(len(positions)):
             x1 = positions[p1]
@@ -47,21 +43,18 @@ def compute_offsets(positions, velocities, masses, dt):
             b2m = m2 * mag
             
             if p1 < p2:
-                offsets[p1] += dx * b2m
+                v1 += dx * b2m
             else:
-                offsets[p1] -= dx * b2m
-
-    return offsets
+                v1 -= dx * b2m
 
 @jit(nopython=True)
 def advance(dt, n, positions, velocities, masses):
     """
     Advance the simulation by 'n' time steps.
     """
-    positions[0, :] = 0
     for step in range(n):
-        offsets = compute_offsets(positions, velocities, masses, dt)
-        velocities += offsets
+        positions[0, :] = 0
+        compute_offsets(positions, velocities, masses, dt)
         positions += dt * velocities
 
 if __name__ == "__main__":
@@ -77,13 +70,20 @@ if __name__ == "__main__":
     nsteps = args.nsteps
     animate = args.animate
 
+    if not animate:
+        import matplotlib
+        matplotlib.use('Agg')
+
+    import matplotlib.animation as animation
+    import matplotlib.pyplot as plt
+
     positions = np.random.rand(N, 3) * 80 - 40
     velocities = np.random.rand(N, 3) * 2 - 1
     masses = np.random.rand(N) * 0.05
 
     # initial conditions:
     positions[0, :] = 0
-    masses[0] = 10
+    masses[0] = 100
 
     ims = []
 

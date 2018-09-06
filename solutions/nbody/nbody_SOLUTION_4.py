@@ -8,14 +8,11 @@
 
 import argparse
 import itertools
-from threading import Thread
+import multiprocessing
 import time
 
-import matplotlib.animation as animation
-import matplotlib.pyplot as plt
 import numpy as np
-
-from numba import jit
+from numba import jit, prange
 
 # ensure repeatable results
 np.random.seed(0)
@@ -23,12 +20,13 @@ np.random.seed(0)
 # number of time steps per frame
 STEPS_PER_FRAME = 5
 
-@jit(nopython=True, nogil=True)
-def offset_p(p, positions, velocities, masses, dt):
+@jit(nopython=True)
+def compute_offsets(positions, velocities, masses, dt):
     """
-    Calculate the offset for particles 'p'
+    Calculate particle interactions and compute offsets.
     """
-    for p1 in p:
+    dx = np.zeros(3, dtype=np.float64)
+    for p1 in prange(len(positions)):
         for p2 in range(len(positions)):
             x1 = positions[p1]
             x2 = positions[p2]
@@ -39,39 +37,31 @@ def offset_p(p, positions, velocities, masses, dt):
             v1 = velocities[p1]
             v2 = velocities[p2]
 
-            dx = x1 - x2
+            dx[0] = x1[0] - x2[0]
+            dx[1] = x1[1] - x2[1]
+            dx[2] = x1[2] - x2[2]
 
-            mag = dt * np.linalg.norm(dx)
+            mag = dt * (dx[0]**2 + dx[1]**2 + dx[2]**2)**0.5
 
             b2m = m2 * mag
-            
-            if p1 < p2:
-                v1 += dx * b2m
-            else:
-                v1 -= dx * b2m
 
-@jit(nogil=True)
+            if p1 < p2:
+                v1[0] += dx[0] * b2m
+                v1[1] += dx[1] * b2m
+                v1[2] += dx[2] * b2m
+            else:
+                v1[0] -= dx[0] * b2m
+                v1[1] -= dx[1] * b2m
+                v1[2] -= dx[2] * b2m
+
+@jit(nopython=True)
 def advance(dt, n, positions, velocities, masses):
     """
     Advance the simulation by 'n' time steps.
     """
-    positions[0, :] = 0
-
-    num_threads = 4
-    threads = []
-
-    N = len(positions)
-    pN = N // num_threads
-    
     for step in range(n):
-        for i in range(num_threads):
-            p1 = list(range(i*pN, i*pN+pN))
-            t = Thread(
-                    target=offset_p,
-                    args=(p1, positions, velocities, masses, dt))
-            t.start()
-            threads.append(t)
-        for t in threads: t.join()
+        positions[0, :] = 0
+        compute_offsets(positions, velocities, masses, dt)
         positions += dt * velocities
 
 if __name__ == "__main__":
@@ -87,13 +77,20 @@ if __name__ == "__main__":
     nsteps = args.nsteps
     animate = args.animate
 
+    if not animate:
+        import matplotlib
+        matplotlib.use('Agg')
+
+    import matplotlib.animation as animation
+    import matplotlib.pyplot as plt
+
     positions = np.random.rand(N, 3) * 80 - 40
     velocities = np.random.rand(N, 3) * 2 - 1
     masses = np.random.rand(N) * 0.05
 
     # initial conditions:
     positions[0, :] = 0
-    masses[0] = 10
+    masses[0] = 100
 
     ims = []
 
@@ -110,7 +107,7 @@ if __name__ == "__main__":
         Compute one frame of the animation.
         """
         t1 = time.time()
-        advance(0.001, 5, positions, velocities, masses)
+        advance(0.001, STEPS_PER_FRAME, positions, velocities, masses)
         t2 = time.time()
 
         sc.set_offsets(positions[:, :2])

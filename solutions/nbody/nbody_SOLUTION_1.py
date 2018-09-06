@@ -11,8 +11,6 @@ import itertools
 import multiprocessing
 import time
 
-import matplotlib.animation as animation
-import matplotlib.pyplot as plt
 import numpy as np
 
 # ensure repeatable results
@@ -43,7 +41,7 @@ def offset_p(p, positions, velocities, masses, dt):
         mag = dt * np.linalg.norm(dx)
 
         b2m = m2 * mag
-        
+
         if p1 < p2:
             offset += dx * b2m
         else:
@@ -55,8 +53,8 @@ def advance(dt, n, positions, velocities, masses):
     """
     Advance the simulation by 'n' time steps.
     """
-    positions[0, :] = 0
     for step in range(n):
+        positions[0, :] = 0
         offsets = pool.starmap(
             offset_p,
             zip(
@@ -83,13 +81,20 @@ if __name__ == "__main__":
     nsteps = args.nsteps
     animate = args.animate
 
+    if not animate:
+        import matplotlib
+        matplotlib.use('Agg')
+
+    import matplotlib.animation as animation
+    import matplotlib.pyplot as plt
+
     positions = np.random.rand(N, 3) * 80 - 40
     velocities = np.random.rand(N, 3) * 2 - 1
     masses = np.random.rand(N) * 0.05
 
     # initial conditions:
     positions[0, :] = 0
-    masses[0] = 10
+    masses[0] = 100
 
     ims = []
 
@@ -106,7 +111,7 @@ if __name__ == "__main__":
         Compute one frame of the animation.
         """
         t1 = time.time()
-        advance(0.001, 5, positions, velocities, masses)
+        advance(0.001, STEPS_PER_FRAME, positions, velocities, masses)
         t2 = time.time()
 
         sc.set_offsets(positions[:, :2])
@@ -114,7 +119,7 @@ if __name__ == "__main__":
         print("Time for step {}: {}s".format(i, t2-t1))
         return sc,
 
-    with multiprocessing.Pool(4) as pool:
+    with multiprocessing.Pool(8) as pool:
         if animate:
             im_ani = animation.FuncAnimation(
                     fig,
