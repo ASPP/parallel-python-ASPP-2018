@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
         sc.set_offsets(positions[:, :2])
 
-        print("Time for step {}: {}s".format(i, t2-t1))
+        print("Time for frame {}: {}s".format(i, t2-t1))
         return sc,
 
     if animate:
